@@ -1,0 +1,29 @@
+{
+  "name": "spotify-resolver-api",
+  "version": "1.0.0",
+  "description": "Node.js API to resolve Spotify tracks metadata and direct stream audio links",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "keywords": [
+    "spotify",
+    "music",
+    "downloader",
+    "discord-bot-api"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "spottydl": "^1.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
