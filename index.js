@@ -1,9 +1,10 @@
 const express = require('express');
 const cors = require('cors');
-const spotty = require('spottydl');
+const fetch = require('isomorphic-unfetch');
+const { getDetails } = require('spotify-url-info')(fetch);
 
 const app = express();
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
@@ -11,7 +12,7 @@ app.use(express.json());
 app.get('/', (req, res) => {
     res.json({
         status: 'online',
-        message: 'Spotify Resolver API is running smoothly!'
+        message: 'Spotify Resolver API is running on Vercel!'
     });
 });
 
@@ -21,45 +22,45 @@ app.get('/api/download', async (req, res) => {
     if (!spotifyUrl) {
         return res.status(400).json({
             success: false,
-            message: 'Missing required query parameter: url'
+            message: 'Missing required parameter: url'
         });
     }
 
     try {
-        console.log(`[API] Processing Spotify URL: ${spotifyUrl}`);
-        
-        const trackData = await spotty.getTrack(spotifyUrl);
+        // Lấy thông tin metadata chuẩn từ Spotify URL
+        const data = await getDetails(spotifyUrl);
 
-        if (!trackData || trackData.error) {
+        if (!data || !data.preview) {
             return res.status(404).json({
                 success: false,
-                message: 'Could not fetch details for the provided Spotify track.'
+                message: 'Could not fetch details for this Spotify track.'
             });
         }
 
+        const trackData = data.preview;
+        const artists = trackData.artist ? trackData.artist : (trackData.artists ? trackData.artists.join(', ') : 'Unknown Artist');
+
         return res.json({
             success: true,
-            title: trackData.title || "Unknown Title",
-            artist: trackData.artist || "Unknown Artist",
-            album: trackData.album || "",
-            year: trackData.year || "",
-            image: trackData.albumCover || "",
-            downloadUrl: trackData.downloadUrl || trackData.streamUrl || null
+            title: trackData.title || 'Unknown Track',
+            artist: artists,
+            image: trackData.image || '',
+            audio_preview: trackData.audio || '',
+            url: spotifyUrl
         });
 
     } catch (error) {
-        console.error('[API Error]:', error.message || error);
+        console.error('Error processing Spotify URL:', error.message);
         return res.status(500).json({
             success: false,
-            message: 'Internal server error while resolving Spotify track.',
+            message: 'Failed to extract Spotify metadata',
             error: error.message
         });
     }
 });
 
 app.listen(PORT, () => {
-    console.log(`=================================`);
-    console.log(`🚀 API Server running on port ${PORT}`);
-    console.log(`🔗 Endpoint: http://localhost:${PORT}/api/download?url=...`);
-    console.log(`=================================`);
+    console.log(`Server running on port ${PORT}`);
 });
+
+module.exports = app;
