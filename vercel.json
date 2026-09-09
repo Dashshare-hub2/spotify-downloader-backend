@@ -10,8 +10,8 @@
       "dest": "/api/song.php"
     },
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
+      "src": "/api/song",
+      "dest": "/api/song.php"
     }
   ]
 }
